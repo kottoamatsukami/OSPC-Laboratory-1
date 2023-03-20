@@ -1,0 +1,56 @@
+#!/bin/bash
+
+percent=$1	
+N=$2
+
+if [[ ! -d "/LOG" ]]
+then
+echo "LOG directory does not exist."
+exit 1
+fi
+if [[ ! -d "/BACKUP" ]]
+then
+echo "BACKUP directory does not exist."
+exit 1
+fi
+
+if [[ $percent -gt 100 || $percent -lt 0 ]]
+then
+echo "Incorrect percent value."
+exit 1
+fi
+
+if [[ $N -eq 0 ]]
+then
+echo "Archived 0 files."
+exit 0
+fi
+
+files_number=$(sudo ls /LOG -l | grep "^-" | wc | cut -c 1-13 | grep -o '[0-9]*')
+if [[ $files_number -eq 0 ]]
+then
+echo "No files to archive."
+exit 0
+fi
+
+taken_space=$(sudo df -h /dev/sdb1| grep -o "[ 1][ 0-9][ 0-9]*%"| cut -c 2-4)
+
+if [[ $taken_space -gt $percent ]] 
+then
+
+sudo find /LOG -type f -printf "\n%AD %t %p" | sort -k1r -k5r | head -n $N | cut -c 46- | sudo xargs tar --remove-files -czvPf /BACKUP/archive_$(date +%F).tar.gz
+
+if [[ $N -lt $files_number ]]
+then
+echo "Archived $N of $files_number existing files."
+elif [[ $N -eq $files_number ]] 
+then
+echo "All files were archived. LOG directory is empty now."
+else
+echo "Found only $files_number of $N requested files for archivation. Archived them successfully."
+fi
+
+else 
+echo "LOG directory is quite free."
+exit 0
+fi
