@@ -1,0 +1,19 @@
+#!/bin/bash
+
+if mountpoint -q /LOG
+then
+echo "/LOG is already mounted."
+else
+echo "Mounting /LOG..."
+sudo mount /dev/sdb1 /LOG
+echo "Done."
+fi
+
+if mountpoint -q /BACKUP
+then
+echo "/BACKUP is already mounted."
+else
+echo "Mounting /BACKUP..."
+sudo mount /dev/sdb2 /BACKUP
+echo "Done."
+fi
