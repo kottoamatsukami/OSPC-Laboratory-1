@@ -1,0 +1,11 @@
+#!/bin/bash
+
+# Checking sudo mod
+if [ "$EUID" -ne 0 ]
+then
+  echo "Please run as root"
+  exit -1
+fi
+
+# Remove files
+sudo rm -rf /BACKUP/*
